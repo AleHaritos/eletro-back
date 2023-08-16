@@ -1,6 +1,12 @@
 server:
   port: 8080
 
+paypal:
+  mode: sandbox
+  client:
+    id: AS7ilV5Jvxt4dBEom6SmFFzzhVsItG0FW4mw5KVfOdt2LhtFSJYtVqhaio2h9Q67INT4kuQdgCEcD8pw
+    secret: ECrTUJ8XY7c02yauj2YJR8aRXi8G6xrTIWVIpiri8YCSwCryF5g75oz9-gXYpM0M-EJp593Jw82Zxzoa
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/eletro
