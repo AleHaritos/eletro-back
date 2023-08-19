@@ -3,6 +3,7 @@ package eletro.controller;
 import eletro.domain.Produto;
 import eletro.service.CalculoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,9 @@ public class ProdutoController {
 
     @Autowired
     ProdutoRepository repository;
+
+    @Autowired
+    CalculoService calculoService;
 
     @PostMapping
     public ResponseEntity<Produto> insertProduto(@RequestBody Produto produto) {
@@ -62,6 +66,12 @@ public class ProdutoController {
     @GetMapping("/{id}")
     public ResponseEntity<Produto> getProdutosById(@PathVariable(name = "id") Integer id) {
         return ResponseEntity.ok(repository.findById(id).get());
+    }
+
+    @PostMapping("/ajuste-estoque")
+    public ResponseEntity<Void> gerenciamentoEstoque(@RequestBody List<Produto> produtos) throws Exception {
+        this.calculoService.calcularEstoque(produtos);
+       return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
 }

@@ -44,7 +44,7 @@ public class Produto implements Serializable {
     @Column(name = "categoria", length = 1) // not null
     private String categoria;
 
-    @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "produto", fetch = FetchType.EAGER)
     @OrderBy("id ASC")
     private Set<Imagem> imagens = new HashSet<>();
 

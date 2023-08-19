@@ -2,6 +2,7 @@ package eletro.repository;
 
 import eletro.domain.Produto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,4 +30,7 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
     @Query(value = "select count(*) from produto where categoria = ?1 and estoque > 0", nativeQuery = true)
     Integer countProdutosByCategoria(String categoria);
 
+    @Modifying
+    @Query(value = "update produto  set estoque = ?1 where id = ?2", nativeQuery = true)
+    int updateEstoque(Integer estoque, Integer id);
 }

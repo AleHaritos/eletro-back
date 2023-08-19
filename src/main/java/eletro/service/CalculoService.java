@@ -2,9 +2,13 @@ package eletro.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eletro.domain.Produto;
 import eletro.domain.dto.Cep;
 import eletro.domain.dto.DadosFrete;
+import eletro.repository.ProdutoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -16,11 +20,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Service
 public class CalculoService {
+
+    @Autowired
+    ProdutoRepository repository;
 
     public DadosFrete calcularFrete(String cep) throws Exception {
         // Validar cep
@@ -81,5 +89,29 @@ public class CalculoService {
         } else {
             throw new Exception("CEP está inválido");
         }
+    }
+
+    @Transactional
+    public String calcularEstoque(List<Produto> produtos) throws Exception {
+        boolean isValid = true;
+        List<Produto> produtosData = new ArrayList<>();
+        for (Produto p : produtos) {
+            Produto produtoData = repository.findById(p.getId()).get();
+            produtosData.add(produtoData);
+            if (produtoData.getEstoque() < p.getEstoque()) {
+                isValid = false;
+            }
+        }
+        if (isValid && !produtosData.isEmpty()) {
+            produtosData.forEach(x -> {
+             Integer qtd = produtos.stream().filter(y -> y.getId().equals(x.getId())).findFirst().get().getEstoque();
+             qtd = x.getEstoque() - qtd;
+             this.repository.updateEstoque(qtd, x.getId());
+            });
+        } else {
+            throw new Exception("Estoque indiponível");
+        }
+
+        return "Sucesso";
     }
 }
