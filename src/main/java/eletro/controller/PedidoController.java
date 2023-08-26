@@ -10,11 +10,14 @@ import eletro.domain.dto.UrlDTO;
 import eletro.repository.PedidoRepository;
 import eletro.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 @Controller
 @RequestMapping("/pedido")
@@ -26,14 +29,24 @@ public class PedidoController {
     @Autowired
     PedidoService pedidoService;
 
-    public static final String SUCCESS_URL = "http://localhost:4200/success";
-    public static final String CANCEL_URL = "http://localhost:4200/cancel";
+    @Value("${front.url}")
+    private String url;
+
+    public final String SUCCESS_URL = url + "/success";
+    public final String CANCEL_URL = url + "/cancel";
 
     @PostMapping("/salvar")
     public ResponseEntity<Pedido> salvarPedido(@RequestBody Pedido p) {
         return ResponseEntity.ok(pedidoService.salvarPedido(p));
     }
 
+    @GetMapping()
+    public ResponseEntity<List<Pedido>> getAllPedidos(@RequestParam Date dtInicio, @RequestParam Date dtFim) {
+        return ResponseEntity.ok(pedidoRepository.findPedidosByData(dtInicio, dtFim));
+    }
+
+
+//Gerar pagamento do pedido
     @PostMapping("/pagamento")
     public ResponseEntity<UrlDTO> getPaypalPayment(@RequestBody Order order) {
         try {
@@ -49,6 +62,7 @@ public class PedidoController {
        return null;
     }
 
+//Executar pagamento do pedido
     @GetMapping("/execute")
     public ResponseEntity<ResponsePayment> successPay(@RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId) {
         try {

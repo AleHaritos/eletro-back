@@ -114,4 +114,12 @@ public class CalculoService {
 
         return "Sucesso";
     }
+
+    @Transactional
+    public String rollbackEstoque(List<Produto> produtos) {
+        for (Produto p : produtos) {
+            repository.rollbackEstoque(p.getEstoque(), p.getId());
+        }
+        return "sucesso";
+    }
 }

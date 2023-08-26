@@ -33,4 +33,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
     @Modifying
     @Query(value = "update produto  set estoque = ?1 where id = ?2", nativeQuery = true)
     int updateEstoque(Integer estoque, Integer id);
+
+    @Modifying
+    @Query(value = "update produto set estoque = estoque + ?1 where id = ?2", nativeQuery = true)
+    int rollbackEstoque(Integer estoque, Integer id);
 }

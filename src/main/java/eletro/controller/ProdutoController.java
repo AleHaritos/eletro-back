@@ -74,4 +74,10 @@ public class ProdutoController {
        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
+    @PostMapping("/rollback-estoque")
+    public ResponseEntity<Void> aumentoEstoque(@RequestBody List<Produto> produtos) throws Exception {
+        this.calculoService.rollbackEstoque(produtos);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
 }

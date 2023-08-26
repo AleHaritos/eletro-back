@@ -1,16 +1,21 @@
 package eletro.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Entity
 @Table(name = "pedidos")
-public class Pedido {
+public class Pedido implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,5 +41,8 @@ public class Pedido {
 
     @Column(name = "valor_total")
     private Double valorTotal;
+
+    @Column(name = "checked", columnDefinition = "Boolean default false")
+    private Boolean checked;
 
 }
