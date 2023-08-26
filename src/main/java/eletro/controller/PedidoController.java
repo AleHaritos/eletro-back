@@ -32,8 +32,8 @@ public class PedidoController {
     @Value("${front.url}")
     private String url;
 
-    public final String SUCCESS_URL = url + "/success";
-    public final String CANCEL_URL = url + "/cancel";
+    public static final String SUCCESS_URL = "http://localhost:4200/success";
+    public static final String CANCEL_URL = "http://localhost:4200/cancel";
 
     @PostMapping("/salvar")
     public ResponseEntity<Pedido> salvarPedido(@RequestBody Pedido p) {
@@ -46,23 +46,23 @@ public class PedidoController {
     }
 
 
-//Gerar pagamento do pedido
+    //Gerar pagamento do pedido
     @PostMapping("/pagamento")
     public ResponseEntity<UrlDTO> getPaypalPayment(@RequestBody Order order) {
         try {
             Payment payment = pedidoService.createPayment(order.getPreco(), order.getDescricao(), CANCEL_URL, SUCCESS_URL);
             for (Links link : payment.getLinks()) {
-                if(link.getRel().equals("approval_url")) {
+                if (link.getRel().equals("approval_url")) {
                     return ResponseEntity.ok(new UrlDTO(link.getHref()));
                 }
             }
         } catch (PayPalRESTException e) {
             e.printStackTrace();
         }
-       return null;
+        return null;
     }
 
-//Executar pagamento do pedido
+    //Executar pagamento do pedido
     @GetMapping("/execute")
     public ResponseEntity<ResponsePayment> successPay(@RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId) {
         try {
