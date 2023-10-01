@@ -45,6 +45,17 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoRepository.findPedidosByData(dtInicio, dtFim));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Pedido> getPedidoById(@PathVariable Integer id) {
+        return ResponseEntity.ok(pedidoRepository.findById(id).get());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Pedido> checkedPedido(@PathVariable Integer id, @RequestParam Boolean check) {
+        Pedido p = this.pedidoRepository.getById(id);
+        p.setChecked(check);
+        return ResponseEntity.ok(this.pedidoRepository.save(p));
+    }
 
     //Gerar pagamento do pedido
     @PostMapping("/pagamento")
