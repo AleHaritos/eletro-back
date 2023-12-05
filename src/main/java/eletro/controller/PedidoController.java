@@ -45,6 +45,11 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoRepository.findPedidosByData(dtInicio, dtFim));
     }
 
+    @GetMapping("/year")
+    public ResponseEntity<List<Date>> getPedidoByYear(@RequestParam Integer year) {
+        return ResponseEntity.ok(pedidoRepository.getDateYear(year));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> getPedidoById(@PathVariable Integer id) {
         return ResponseEntity.ok(pedidoRepository.findById(id).get());

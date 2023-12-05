@@ -52,6 +52,11 @@ public class ProdutoController {
         return ResponseEntity.ok(repository.countProdutosByCategoria(categoria));
     }
 
+    @GetMapping("/search/{search}")
+    public ResponseEntity<List<Produto>> getProdutoLikeSearch(@PathVariable(name = "search") String search) {
+        return ResponseEntity.ok(repository.getByLikeSearch(search));
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> excluirProduto(@RequestParam Integer id) {
         repository.deleteById(id);

@@ -1,10 +1,12 @@
 package eletro.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eletro.domain.Produto;
 import eletro.domain.dto.Cep;
 import eletro.domain.dto.DadosFrete;
+import eletro.domain.dto.FreteDTO;
 import eletro.repository.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class CalculoService {
@@ -36,28 +39,46 @@ public class CalculoService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://ws.correios.com.br/calculador/CalcPrecoPrazo.aspx?nCdEmpresa=&sDsSenha=&sCepOrigem=12914180&sCepDestino=" + cep + "&nVlPeso=2.0&nCdFormato=1&nVlComprimento=30&nVlAltura=30&nVlLargura=30&sCdMaoPropria=N&nVlValorDeclarado=0&sCdAvisoRecebimento=N&nCdServico=04014&nVlDiametro=0&StrRetorno=xml&nIndicaCalculo=3"))
+                .uri(URI.create("https://www.melhorenvio.com.br/api/v2/calculator?from=12914-180&to=" + cep + "&width=12&height=4&length=17&weight=1&insurance_value=50"))
                 .build();
+
+
 
         HttpClient cliente = HttpClient.newBuilder().build();
         try {
             var response = cliente.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-            var xml = response.get().body();
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            List<FreteDTO> freteList = mapper.readValue(response.get().body(), new TypeReference<List<FreteDTO>>(){});
 
-            Document xmlDocument = builder.parse(new InputSource(new StringReader(xml)));
-
-            // Pega os elementos em que o nome da tag seja "c":
-            NodeList nodesValor = xmlDocument.getElementsByTagName("Valor");
-            NodeList nodesPrazo = xmlDocument.getElementsByTagName("PrazoEntrega");
-            DadosFrete dadosFrete = new DadosFrete();
-            if (nodesValor.getLength() > 0) {
-                dadosFrete.setValor(nodesValor.item(0).getTextContent());
-                dadosFrete.setPrazo(nodesPrazo.item(0).getTextContent());
+            if(freteList != null && !freteList.isEmpty()) {
+               FreteDTO frete = freteList.stream().filter(x -> x.getId().equals(2L) && x.getName().equals("SEDEX")).findFirst().get();
+               if (frete != null) {
+                   DadosFrete dados = new DadosFrete();
+                   dados.setValor(frete.getPrice());
+                   dados.setPrazo(frete.getDelivery_time());
+                   return dados;
+               }
             }
 
-            return dadosFrete;
+
+            //Versão antiga para pegar XML
+
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//            DocumentBuilder builder = factory.newDocumentBuilder();
+//
+//            Document xmlDocument = builder.parse(new InputSource(new StringReader(xml)));
+//
+//            // Pega os elementos em que o nome da tag seja "c":
+//            NodeList nodesValor = xmlDocument.getElementsByTagName("Valor");
+//            NodeList nodesPrazo = xmlDocument.getElementsByTagName("PrazoEntrega");
+//            DadosFrete dadosFrete = new DadosFrete();
+//            if (nodesValor.getLength() > 0) {
+//                dadosFrete.setValor(nodesValor.item(0).getTextContent());
+//                dadosFrete.setPrazo(nodesPrazo.item(0).getTextContent());
+//            }
+//
+//            return dadosFrete;
         } catch (Exception e) {
             e.printStackTrace();
         }

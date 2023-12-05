@@ -30,6 +30,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
     @Query(value = "select count(*) from produto where categoria = ?1 and estoque > 0", nativeQuery = true)
     Integer countProdutosByCategoria(String categoria);
 
+    @Query(value = "select * from produto where produto.nome like ?1% limit 5", nativeQuery = true)
+    List<Produto> getByLikeSearch(String search);
+
     @Modifying
     @Query(value = "update produto  set estoque = ?1 where id = ?2", nativeQuery = true)
     int updateEstoque(Integer estoque, Integer id);

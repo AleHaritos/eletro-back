@@ -17,4 +17,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query(value = "SELECT * FROM pedidos  where data BETWEEN :dtInicio AND :dtFim order by pedidos.id", nativeQuery = true)
     List<Pedido> findPedidosByData(@Param("dtInicio") Date dtInicio, @Param("dtFim") Date dtFim);
 
+
+    @Query(value = "SELECT data FROM pedidos where date_part('year', pedidos.data) = :dtYear", nativeQuery = true)
+    List<Date> getDateYear(@Param("dtYear") Integer dtYear);
 }
